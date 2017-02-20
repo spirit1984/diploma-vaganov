@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * Created by shevchenko-dv-100705 on 25.11.16.
  */
 public class StringUtils {
-    public final static Pattern genePattern = Pattern.compile("gene=([\\w|\\.]*)");
+    public final static Pattern genePattern = Pattern.compile("gene=([\\w|\\.|\\-|\\_]*)");
     public final static Pattern locationPattern = Pattern.compile("location=(\\w*)");
 
     public static boolean isGeneDescription(String name) {
@@ -28,7 +28,7 @@ public class StringUtils {
             return filename;
         }
 
-        return filename.replace(".", "") + "_" + locationMatcher.group(1);
+        return filename.replace(".", "").replace("_", "").replace("-", "") + "_" + locationMatcher.group(1);
 
     }
 }

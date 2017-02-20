@@ -79,4 +79,17 @@ public class StringTest {
         Assert.assertEquals("UL35_complement", StringUtils.convertToFileName(desc));
 
     }
+
+    @Test
+    public void locationMGFTestText() {
+        final String desc = ">lcl|FR682468.1_cds_CBW46643.1_1 [gene=MGF_360-1L] [protein=MGF_360-1L] [protein_id=CBW46643.1] [location=complement(852..1934)]";
+        Matcher m = StringUtils.locationPattern.matcher(desc);
+
+        Assert.assertTrue("find", m.find());
+        Assert.assertEquals("location=complement", m.group(0));
+        Assert.assertEquals("complement", m.group(1));
+        Assert.assertEquals("MGF3601L_complement", StringUtils.convertToFileName(desc));
+    }
+
+
 }
