@@ -33,6 +33,8 @@ public class StringMatcherTest {
         checkContent(matcher.getStrings(matr, "a", "bbbbaссccc"), "OOOOaOOOOO", "bbbbaссccc");
     }
 
+
+
     @Test
     public void singleLetterTestHandle() {        
         StringMatcher.MatcherResponse resp = matcher.handle("a", "ttttaccccc");

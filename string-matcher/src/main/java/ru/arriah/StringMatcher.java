@@ -368,7 +368,7 @@ public class StringMatcher {
         }
     }
 
-    String clearStringFromNoise(String value, String label) {
+    static String clearStringFromNoise(String value, String label) {
         StringBuffer sb = new StringBuffer();
 
         for (char ch : value.toUpperCase().toCharArray()) {
@@ -385,18 +385,18 @@ public class StringMatcher {
         return result;
     }
 
-    boolean isTGAC(char ch) {
+    static boolean isTGAC(char ch) {
         return ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T';
     }
 
-    void checkPatternIsNotLongerThanText(String pattern, String text) {
+    static void checkPatternIsNotLongerThanText(String pattern, String text) {
         if (pattern.length() > text.length() ) {
             throw new IllegalArgumentException(String.format("Pattern has %d symbols, more than text that has %d symbols",
                     pattern.length(), text.length()));
         }
     }
 
-    void checkNonEmpty(String value, String label) {
+    static void checkNonEmpty(String value, String label) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(String.format("Argument '%s' cannot be empty", label));
         }

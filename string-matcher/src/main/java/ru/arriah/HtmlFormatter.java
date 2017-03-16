@@ -19,25 +19,28 @@ class HtmlFormatter {
         addParagraph(sb, String.format("Length is: %d", length));
         addParagraph(sb, String.format("End is: %d", (response.getStart() + length)));
 
-        addStartTag(sb, "pre");
-        sb.append("\n");
-        sb.append(response.getContent().getText());
-        sb.append("\n");
-        sb.append(response.getContent().getPattern());
-        sb.append("\n");
-        addCloseTag(sb, "pre");
+        if (response.getDistance() > 0) {
 
-        sb.append("\n<br/>");
+            addStartTag(sb, "pre");
+            sb.append("\n");
+            sb.append(response.getContent().getText());
+            sb.append("\n");
+            sb.append(response.getContent().getPattern());
+            sb.append("\n");
+            addCloseTag(sb, "pre");
 
-        HtmlFormatStateMachine machine = new HtmlFormatStateMachine(
-                response.getContent().getPattern().toString().toCharArray(),
-                response.getContent().getText().toString().toCharArray());
+            sb.append("\n<br/>");
 
-        while (!machine.isTerminated()) {
-            machine.iterate();
+            HtmlFormatStateMachine machine = new HtmlFormatStateMachine(
+                    response.getContent().getPattern().toString().toCharArray(),
+                    response.getContent().getText().toString().toCharArray());
+
+            while (!machine.isTerminated()) {
+                machine.iterate();
+            }
+
+            sb.append(machine);
         }
-
-        sb.append(machine);
 
         addCloseTag(sb, "body");
 
