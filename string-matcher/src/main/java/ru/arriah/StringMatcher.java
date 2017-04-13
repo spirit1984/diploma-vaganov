@@ -107,6 +107,10 @@ public class StringMatcher {
     }
 
     public MatcherResponse handleBuffer(String pattern, String text) {
+        return handleBuffer(pattern, text, pattern.length());
+    }
+
+    public MatcherResponse handleBuffer(String pattern, String text, int bufferSize) {
         checkNonEmpty(pattern, "pattern");
         checkNonEmpty(text, "text");
 
@@ -115,7 +119,7 @@ public class StringMatcher {
         text = clearStringFromNoise(text, "text");
 
         checkPatternIsNotLongerThanText(pattern, text);        
-        checkFieldDoesNotExceedLimit(pattern, "pattern",  4000);
+        checkFieldDoesNotExceedLimit(pattern, "pattern",  10000);
         logger.info(String.format(
             "After clearing the noise from data now pattern size is: %d. Text size is %d",
             pattern.length(), text.length()));
@@ -125,9 +129,10 @@ public class StringMatcher {
         int min = n+1; // This is the upper bound for the edit distance, you know
         int offset = 0;
         StringMatcher.MatrixCell[][] matr = null;
+        int actualBuffer = bufferSize+n;
         while (pos <= m) {
             logger.info(String.format("%d/%d", pos, m));
-            int left = pos, right = Math.min(m, pos+BUFFER_SIZE-1);
+            int left = pos, right = Math.min(m, pos+actualBuffer-1);
             String currentText = text.substring(left-1, right); // Don't forget it's exclusive
             StringMatcher.MatrixCell[][] currentMatr = constructMatrix(pattern, currentText);            
             int distance = getEditDistance(currentMatr);
@@ -138,7 +143,7 @@ public class StringMatcher {
                 optimalText = currentText;
             }
 
-            pos += Math.max(1, BUFFER_SIZE-n);
+            pos += Math.max(1, actualBuffer-bufferSize);
         }
         return stripPatternOffset(
             modifyOffset(convertMatrixToResponse(matr, pattern, optimalText), offset));        

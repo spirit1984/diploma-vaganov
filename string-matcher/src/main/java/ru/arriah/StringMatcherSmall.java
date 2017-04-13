@@ -1,5 +1,7 @@
 package ru.arriah;
 
+import org.apache.log4j.Logger;
+
 import static ru.arriah.StringMatcher.checkNonEmpty;
 import static ru.arriah.StringMatcher.checkPatternIsNotLongerThanText;
 import static ru.arriah.StringMatcher.clearStringFromNoise;
@@ -15,6 +17,7 @@ import static ru.arriah.StringMatcher.clearStringFromNoise;
  */
 public class StringMatcherSmall {
 
+    private static final Logger logger = Logger.getLogger(StringMatcherSmall.class);
     /**
      * Ответ от данного класса состоит из двух элементов:
      * расстояния между строками и окончания образца в строке (если
@@ -52,6 +55,7 @@ public class StringMatcherSmall {
     }
 
     public MatcherResponse search(String pattern, String text) {
+        logger.info("First pass - just the distance");
         checkNonEmpty(pattern, "pattern");
         checkNonEmpty(text, "text");
 
@@ -60,22 +64,35 @@ public class StringMatcherSmall {
         text = clearStringFromNoise(text, "text");
 
         checkPatternIsNotLongerThanText(pattern, text);
+
         int n = pattern.length();
         int m = text.length();
+        logger.info("Trying the standard library");
+        int pos = text.indexOf(pattern);
+        if (pos >= 0) return new MatcherResponse(0, pos+n-1);
+        logger.info("The distance is actually non-zero, so using non-standard methods");
         MatrixSmall sm = new MatrixSmall(m);
 
+        int step = Math.max(1, n/100);
         for (int x = 1;x<=n;x++) {
             final char patternSymbol = pattern.charAt(x-1); // Не забываем о строке, что у нее нулевое смещение
             sm.matr[1][0] = x; // Получить непустой образец из пустой строки можно только за k - извиняйте
             for (int y =1;y<=m;y++) {
                 final char textSymbol = text.charAt(y-1);
-                sm.matr[1][y] = min(sm.matr[1][y-1], 1 + sm.matr[0][y],
+                sm.matr[1][y] = min(1 + sm.matr[0][y],
                         cost(patternSymbol,textSymbol) + sm.matr[0][y-1]);
             }
             for (int i = 0;i<=m;i++) {
                 sm.matr[0][i] = sm.matr[1][i];
             }
+
+            if (x%step == 0) {
+                logger.info(String.format("Step %d/%d", x, n));
+            }
         }
+
+
+
         int distance = n;
         int end =  -1;
         for (int i=0;i<=m;i++) {
@@ -85,7 +102,21 @@ public class StringMatcherSmall {
             }
         }
 
+        logger.info("The actual distance found by dynamic programming is:" + distance);
+
+        assertInvariant(distance, end, pattern, text);
+
         return new MatcherResponse(distance, end);
+    }
+
+    private void assertInvariant(int distance, int end, String pattern, String text) {
+        if (distance > 0) return;
+        if (end < 0 ) throw new IllegalStateException("End should not be negative at this point, since the distance is zero");
+        int start = end - pattern.length() + 1;
+        if (start < 0) throw new IllegalStateException(String.format("Start is negative. End is: %d", end));
+        String subtext = text.substring(start, end+1);
+        if (!pattern.equals(subtext))
+            throw new IllegalStateException(String.format("Pattern does not match the subtext: %s", subtext));
     }
 
     private int min(int val, int... vals) {

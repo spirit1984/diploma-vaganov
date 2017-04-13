@@ -13,6 +13,7 @@ public class App
 {
 	private static final Logger logger = Logger.getLogger(App.class);
 	private final StringMatcher matcher = new StringMatcher();
+	private final StringMatcherSmall smallMatcher = new StringMatcherSmall();
 
     public static void main( String[] args )
     {
@@ -36,7 +37,13 @@ public class App
     	logger.info("Reading text...");
     	String text = readString(textName);
     	logger.info(String.format("Text read successfully. Raw string contains: %d bytes", text.length()));
-		StringMatcher.MatcherResponse response = matcher.handleBuffer(pattern, text);
+		StringMatcherSmall.MatcherResponse smallResponse = smallMatcher.search(pattern, text);
+		StringMatcher.MatcherResponse response = matcher.handleBuffer(pattern, text, smallResponse.getDistance());
+
+		if (response.getDistance() != smallResponse.getDistance()) {
+			throw new IllegalStateException(String.format(
+					"Small distance - %d. Actual distance - %d", smallResponse.getDistance(), response.getDistance()));
+		}
 
 
 
