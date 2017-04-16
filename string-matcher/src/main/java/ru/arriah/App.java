@@ -37,12 +37,20 @@ public class App
     	logger.info("Reading text...");
     	String text = readString(textName);
     	logger.info(String.format("Text read successfully. Raw string contains: %d bytes", text.length()));
-		StringMatcherSmall.MatcherResponse smallResponse = smallMatcher.search(pattern, text);
-		StringMatcher.MatcherResponse response = matcher.handleBuffer(pattern, text, smallResponse.getDistance());
+		StringMatcher.MatcherResponse response;
+		StringMatcherSmall.MatcherResponse firstPassResponse = smallMatcher.search(pattern, text);
+		if (firstPassResponse.getDistance() != 0) {
+			StringMatcher.MatcherResponse secondPassResponse = matcher.handleBuffer(pattern, text, firstPassResponse.getDistance(), firstPassResponse.getEnd());
 
-		if (response.getDistance() != smallResponse.getDistance()) {
-			throw new IllegalStateException(String.format(
-					"Small distance - %d. Actual distance - %d", smallResponse.getDistance(), response.getDistance()));
+			if (secondPassResponse.getDistance() != firstPassResponse.getDistance()) {
+				logger.error(String.format(
+						"Small distance - %d. Actual distance - %d", firstPassResponse.getDistance(),
+						secondPassResponse.getDistance()));
+			}
+			response = secondPassResponse;
+		} else {
+
+			response = new StringMatcher.MatcherResponse(null, firstPassResponse.getStart(), (short) 0);
 		}
 
 

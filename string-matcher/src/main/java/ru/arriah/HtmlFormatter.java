@@ -15,11 +15,16 @@ class HtmlFormatter {
 
         addParagraph(sb, String.format("Edit distance is: %d", response.getDistance()));
         addParagraph(sb, String.format("Offset is: %d", (response.getStart()+1)));
-        int length = getGenomeLength(response.getContent().getPattern().toString().toCharArray());
-        addParagraph(sb, String.format("Length is: %d", length));
-        addParagraph(sb, String.format("End is: %d", (response.getStart() + length)));
+
+
+
+
 
         if (response.getDistance() > 0) {
+            int length = getGenomeLength(response.getContent().getPattern().toString().toCharArray());
+            addParagraph(sb, String.format("Length is: %d", length));
+            addParagraph(sb, String.format("End is: %d", (response.getStart() + length)));
+
 
             addStartTag(sb, "pre");
             sb.append("\n");

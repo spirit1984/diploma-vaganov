@@ -106,11 +106,10 @@ public class StringMatcher {
         }
     }
 
-    public MatcherResponse handleBuffer(String pattern, String text) {
-        return handleBuffer(pattern, text, pattern.length());
-    }
 
-    public MatcherResponse handleBuffer(String pattern, String text, int bufferSize) {
+
+    public MatcherResponse handleBuffer(String pattern, String text, int k, int end) {
+        logger.info("Second pass");
         checkNonEmpty(pattern, "pattern");
         checkNonEmpty(text, "text");
 
@@ -124,27 +123,26 @@ public class StringMatcher {
             "After clearing the noise from data now pattern size is: %d. Text size is %d",
             pattern.length(), text.length()));
         int n = pattern.length(), m = text.length();
-        int pos = 1;
+
         String optimalText = null;
         int min = n+1; // This is the upper bound for the edit distance, you know
         int offset = 0;
         StringMatcher.MatrixCell[][] matr = null;
-        int actualBuffer = bufferSize+n;
-        while (pos <= m) {
-            logger.info(String.format("%d/%d", pos, m));
-            int left = pos, right = Math.min(m, pos+actualBuffer-1);
-            String currentText = text.substring(left-1, right); // Don't forget it's exclusive
-            StringMatcher.MatrixCell[][] currentMatr = constructMatrix(pattern, currentText);            
-            int distance = getEditDistance(currentMatr);
-            if (min > distance) {
-                offset = left-1;
-                min = distance;
-                matr=  currentMatr;
-                optimalText = currentText;
-            }
 
-            pos += Math.max(1, actualBuffer-bufferSize);
+
+        int left = Math.max(1, end-n-k-5), right = Math.min(m, end+k+5);
+
+        logger.info(String.format("%d-%d/%d", left, right, m));
+        String currentText = text.substring(left-1, right); // Don't forget it's exclusive
+        StringMatcher.MatrixCell[][] currentMatr = constructMatrix(pattern, currentText);
+        int distance = getEditDistance(currentMatr);
+        if (min > distance) {
+            offset = left-1;
+            matr=  currentMatr;
+            optimalText = currentText;
         }
+
+
         return stripPatternOffset(
             modifyOffset(convertMatrixToResponse(matr, pattern, optimalText), offset));        
     }

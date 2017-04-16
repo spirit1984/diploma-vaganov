@@ -32,10 +32,17 @@ public class StringMatcherSmall {
     public class MatcherResponse {
         private final int distance;
         private final int end;
+        private final int start;
 
-        public MatcherResponse(int distance, int end) {
+
+        public MatcherResponse(int distance, int end, int start) {
             this.distance = distance;
             this.end = end;
+            this.start = start;
+        }
+
+        public int getStart() {
+            return start;
         }
 
         public int getDistance() {
@@ -69,7 +76,7 @@ public class StringMatcherSmall {
         int m = text.length();
         logger.info("Trying the standard library");
         int pos = text.indexOf(pattern);
-        if (pos >= 0) return new MatcherResponse(0, pos+n-1);
+        if (pos >= 0) return new MatcherResponse(0, pos+n-1, pos);
         logger.info("The distance is actually non-zero, so using non-standard methods");
         MatrixSmall sm = new MatrixSmall(m);
 
@@ -79,7 +86,7 @@ public class StringMatcherSmall {
             sm.matr[1][0] = x; // Получить непустой образец из пустой строки можно только за k - извиняйте
             for (int y =1;y<=m;y++) {
                 final char textSymbol = text.charAt(y-1);
-                sm.matr[1][y] = min(1 + sm.matr[0][y],
+                sm.matr[1][y] = min(1+sm.matr[1][y-1], 1 + sm.matr[0][y],
                         cost(patternSymbol,textSymbol) + sm.matr[0][y-1]);
             }
             for (int i = 0;i<=m;i++) {
@@ -106,7 +113,7 @@ public class StringMatcherSmall {
 
         assertInvariant(distance, end, pattern, text);
 
-        return new MatcherResponse(distance, end);
+        return new MatcherResponse(distance, end, end-n+1);
     }
 
     private void assertInvariant(int distance, int end, String pattern, String text) {
