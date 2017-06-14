@@ -33,12 +33,14 @@ public class StringMatcherSmall {
         private final int distance;
         private final int end;
         private final int start;
+        private final String pattern;
 
 
-        public MatcherResponse(int distance, int end, int start) {
+        public MatcherResponse(int distance, int end, int start, String pattern) {
             this.distance = distance;
             this.end = end;
             this.start = start;
+            this.pattern = pattern;
         }
 
         public int getStart() {
@@ -51,6 +53,10 @@ public class StringMatcherSmall {
 
         public int getEnd() {
             return end;
+        }
+
+        public String getPattern() {
+            return pattern;
         }
     }
 
@@ -76,7 +82,7 @@ public class StringMatcherSmall {
         int m = text.length();
         logger.info("Trying the standard library");
         int pos = text.indexOf(pattern);
-        if (pos >= 0) return new MatcherResponse(0, pos+n-1, pos);
+        if (pos >= 0) return new MatcherResponse(0, pos+n-1, pos, pattern);
         logger.info("The distance is actually non-zero, so using non-standard methods");
         MatrixSmall sm = new MatrixSmall(m);
 
@@ -113,7 +119,7 @@ public class StringMatcherSmall {
 
         assertInvariant(distance, end, pattern, text);
 
-        return new MatcherResponse(distance, end, end-n+1);
+        return new MatcherResponse(distance, end, end-n+1, pattern);
     }
 
     private void assertInvariant(int distance, int end, String pattern, String text) {

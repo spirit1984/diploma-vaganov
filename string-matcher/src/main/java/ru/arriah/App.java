@@ -50,7 +50,7 @@ public class App
 			response = secondPassResponse;
 		} else {
 
-			response = new StringMatcher.MatcherResponse(null, firstPassResponse.getStart(), (short) 0);
+			response = new StringMatcher.MatcherResponse(getContent(firstPassResponse.getPattern()), firstPassResponse.getStart(), (short) 0);
 		}
 
 
@@ -64,7 +64,14 @@ public class App
 
     }
 
-    private String readString(String fileName) {
+	private StringMatcher.StringContent getContent(String pattern) {
+		StringMatcher.StringContent content = new StringMatcher.StringContent();
+		content.getPattern().append(pattern);
+
+		return content;
+	}
+
+	private String readString(String fileName) {
     	StringBuffer buffer = new StringBuffer();    	
 
     	try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {

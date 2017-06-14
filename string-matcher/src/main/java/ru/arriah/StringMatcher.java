@@ -18,9 +18,6 @@ public class StringMatcher {
     private static final char MISS_SIGN = 'O';
     private static final char GAP_SIGN = '_';
 
-    private static final int BUFFER_SIZE = 8000;
-    
-    
 
     public static class StringContent {
         private final StringBuffer text = new StringBuffer();
