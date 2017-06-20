@@ -64,6 +64,22 @@ class StringTest {
         Assert.assertEquals("MGF3601L_complement", convertToFilename(desc))
     }
 
+    @Test
+    fun complementTest() {
+        val pattern = OutputPattern("test_complement.txt", """AAAA
+TGGAC""")
+        val expected = OutputPattern("test_complement.txt", """GTCCA
+TTTT""")
+        Assert.assertEquals(expected, complement(pattern))
+    }
+
+    @Test
+    fun complementAbsentTest() {
+        val pattern = OutputPattern("test_compl.txt", """AAAA
+TGGAC""")
+        Assert.assertEquals(pattern, complement(pattern))
+    }
+
 
 
 }
