@@ -9,22 +9,14 @@ fun main(args: Array<String>) {
     println("This is the stub for kotlin program")
 }
 
-private val genePattern = Pattern.compile("gene=([\\w|\\.|\\-|\\_]*)")
-private val locationPattern = Pattern.compile("location=(\\w*)")
+val genePattern = Regex("""gene=([\w|\.|\-|\_]*)""")
+val locationPattern = Regex("""location=(\w*)""")
 
-
-private fun isGeneDescription(name: String) = name.startsWith(">lcl")
-private fun convertToFilename(description: String): String {
-    val geneMatcher = genePattern.matcher(description)
-    if (!geneMatcher.find() || geneMatcher.groupCount() < 1) return ""
-    val filename = geneMatcher.group(1)
-
-    val locationMatcher = locationPattern.matcher(description)
-
-    if (!locationMatcher.find() || locationMatcher.groupCount() < 1) {
-        return filename
-    }
-
+fun isGeneDescription(name: String) = name.startsWith(">lcl")
+fun convertToFilename(description: String): String {
+    val filename = genePattern.find(description)?.destructured?.component1() ?: "FAIL"
+    val location = locationPattern.find(description)?.destructured?.component1() ?: "FAIL"
     val filenameStrip = filename.replace(".", "").replace("_", "").replace("-", "")
-    return "${filenameStrip}_${locationMatcher.group(1)}"
+    return "${filenameStrip}_$location"
 }
+
