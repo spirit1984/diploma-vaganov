@@ -7,6 +7,9 @@ fun main(args: Array<String>) {
     println("The very first stub")
 }
 
+val MISS_SIGN = 'O'
+val GAP_SIGN = '_'
+
 fun minInt(vararg values:Int) = values.min() ?: 0
 
 sealed class MatchResponse
@@ -37,7 +40,29 @@ fun analyzeStripped(pattern: String, text: String) : MatchResponse {
     return analyzeDetailed(pattern, text, quickMatch)
 }
 
-fun analyzeDetailed(pattern: String, text: String, quickMatch: QuickApproximateMatch): ApproximateMatch = error("Not implemented yet")
+fun analyzeDetailed(pattern: String, text: String, quickMatch: QuickApproximateMatch): ApproximateMatch {
+    println("Second pass")
+    val (n,m) = Pair(pattern.length, text.length)
+    println("After clearing the noise from data pattern is now $n symbol(-s) long. Text is now $m symbol-s long")
+
+    val left = Math.max(1, quickMatch.end-n-quickMatch.distance-5)
+    val right = Math.min(m, quickMatch.end+quickMatch.distance+5)
+
+    println("Analyzing the part from $left to $right inclusive")
+
+    return addOffset(analyzeDetailed(pattern, text.substring(left..right)), left)
+
+}
+
+fun addOffset(analyzeDetailed: ApproximateMatch, left: Int): ApproximateMatch =
+        ApproximateMatch(start = analyzeDetailed.start+left-1, end = analyzeDetailed.end+left-1,
+                distance = analyzeDetailed.distance, text = analyzeDetailed.text, pattern =  analyzeDetailed.pattern)
+
+fun analyzeDetailed(pattern: String, text: String): ApproximateMatch {
+
+    TODO("not implemented")
+}
+
 
 
 fun analyzeQuick(pattern: String, text: String): QuickApproximateMatch {
@@ -51,8 +76,6 @@ fun analyzeQuick(pattern: String, text: String): QuickApproximateMatch {
         matrix.second[0] = x // Получить Получить непустой образец из пустой строки можно только за x - извиняйте
         for (y in 1..m) {
             val textSymbol = text[y-1] // Не забываем про смещение
-            // sm.matr[1][y] = min(1+sm.matr[1][y-1], 1 + sm.matr[0][y],
-            // cost(patternSymbol,textSymbol) + sm.matr[0][y-1]);
             matrix.second[y] = minInt(1+matrix.second[y-1], 1 + matrix.first[y],
                     matrix.first[y-1] + cost(patternSymbol, textSymbol))
         }
@@ -61,5 +84,6 @@ fun analyzeQuick(pattern: String, text: String): QuickApproximateMatch {
     }
 
     val (distance, end) = matrix.first.zip(0..m).minBy{it.first} ?: Pair(n, 0) // Крайне маловероятно, но все же
+    println("Distance is $distance. End is at $end")
     return QuickApproximateMatch(end = end, distance = distance)
 }

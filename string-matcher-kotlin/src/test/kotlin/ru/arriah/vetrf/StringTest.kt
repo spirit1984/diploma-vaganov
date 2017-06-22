@@ -37,4 +37,5 @@ class StringTest {
 
     @Test
     fun approximateMatchShouldWork() = Assert.assertEquals(QuickApproximateMatch(3, 1), analyzeQuick("AB", "TGACC"))
+
 }
