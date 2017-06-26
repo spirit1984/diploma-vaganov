@@ -21,10 +21,10 @@ class StringTest {
 
 
     @Test
-    fun costOfEqualSymbolsShouldBeZero() = Assert.assertEquals(0, cost('a', 'a'))
+    fun costOfEqualSymbolsShouldBeZero() = Assert.assertEquals(0.toShort(), cost('a', 'a'))
 
     @Test
-    fun costOfDifferentSymbolsShouldBeOne() = Assert.assertEquals(1, cost('a', 'c'))
+    fun costOfDifferentSymbolsShouldBeOne() = Assert.assertEquals(1.toShort(), cost('a', 'c'))
 
     @Test
     fun nonEmptyStringShouldPass() = checkNonEmpty("Something")

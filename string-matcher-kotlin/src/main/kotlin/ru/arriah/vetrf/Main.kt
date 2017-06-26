@@ -20,6 +20,9 @@ data class ExactMatch(val start:  Int, val end: Int): MatchResponse()
 data class ApproximateMatch(val start: Int, val end: Int, val distance:Int,
                             val text: String, val pattern: String): MatchResponse()
 
+enum class DIRECTION {UP, LEFT,DIAG, SKIP, UNEXPECTED}
+data class Cell(val value: Short = 0, val direction: DIRECTION = DIRECTION.UNEXPECTED, val calculated: Boolean = false)
+
 /**
  * Данный класс используется как промежуточные, и не используется для вывода напрямую пользователю
  * А посему и не должен быть одним из вариантов ответа
@@ -60,11 +63,52 @@ fun addOffset(analyzeDetailed: ApproximateMatch, left: Int): ApproximateMatch =
 
 fun analyzeDetailed(pattern: String, text: String): ApproximateMatch {
     val (n, m) = Pair(pattern.length, text.length)
+    val matr = Array(n+1, {Array(m+1, { Cell()}) })
+
+    for (row in 0..n)
+        for (col in 0..m)
+            calcCell(matr, row, col, pattern, text)
 
     TODO("not implemented")
 }
 
+fun getEditDistancePosition(matr: Array<Array<Cell>>, pattern: String, text: String): Int {
+    val (n, m) = Pair(pattern.length, text.length)
+    return getEditDistancePosition(matr[n], m)
+}
 
+fun getEditDistancePosition(lastRow: Array<Cell>, textLength: Int): Int =
+    lastRow.zip(0..textLength).filter{it.first.direction != DIRECTION.SKIP}.minBy { it.first.value }!!.second
+
+
+fun calculateOffset(str: String): Int =
+        str.toCharArray().zip(0..str.length).filter{it.first != MISS_SIGN}.first().second
+
+fun calcCell(matr: Array<Array<Cell>>, row: Int, col: Int, pattern: String, text:String): Cell {
+    if (matr[row][col].calculated) return matr[row][col]
+    val cell = calcCellDirect(matr, row, col, pattern, text)
+    matr[row][col] = Cell(cell.value, cell.direction, true)
+    return matr[row][col]
+}
+
+fun calcCellDirect(matr: Array<Array<Cell>>, row: Int, col: Int, pattern: String, text: String): Cell {
+    val n = pattern.length
+    if (col == 0) return Cell(row.toShort(), DIRECTION.UP)
+    if (row == 0) return calcCell(matr, row, col-1, pattern, text)
+    val (textSymbol, patternSymbol) = Pair(text[col-1], pattern[row-1])
+    val cell = min(
+            makeCell(calcCell(matr, row, col-1, pattern, text).value, DIRECTION.LEFT, cost(patternSymbol, GAP_SIGN)),
+            makeCell(calcCell(matr, row-1, col, pattern, text).value, DIRECTION.UP, cost(GAP_SIGN, textSymbol)),
+            makeCell(calcCell(matr, row-1, col-1, pattern, text).value, DIRECTION.DIAG, cost(patternSymbol, textSymbol)),
+            if (row == n) makeCell(calcCell(matr, row, col-1, pattern, text).value, DIRECTION.SKIP, 0)
+            else Cell((n+100).toShort(), DIRECTION.UNEXPECTED)
+    )
+
+    return cell
+}
+
+fun min(vararg cells: Cell) = cells.minBy{it.value} ?: Cell(0, DIRECTION.UNEXPECTED)
+fun makeCell(value: Short, direction: DIRECTION, cost: Short = 0) = Cell((value + cost).toShort(), direction)
 
 fun analyzeQuick(pattern: String, text: String): QuickApproximateMatch {
     val (n, m) = Pair(pattern.length, text.length)

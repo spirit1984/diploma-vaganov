@@ -3,7 +3,7 @@ package ru.arriah.vetrf
 /**
  * Created by 123 on 21.06.2017.
  */
-fun cost(a: Char, b: Char) = if (a==b) 0 else 1
+fun cost(a: Char, b: Char): Short = if (a==b) 0 else 1
 fun checkNonEmpty(value: String, label: String = "default") {
     if (value.trim().isEmpty()) {
         error("Argument '$label' cannot be empty")
