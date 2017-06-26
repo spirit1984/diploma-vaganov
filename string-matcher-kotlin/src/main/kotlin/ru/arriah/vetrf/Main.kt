@@ -59,6 +59,7 @@ fun addOffset(analyzeDetailed: ApproximateMatch, left: Int): ApproximateMatch =
                 distance = analyzeDetailed.distance, text = analyzeDetailed.text, pattern =  analyzeDetailed.pattern)
 
 fun analyzeDetailed(pattern: String, text: String): ApproximateMatch {
+    val (n, m) = Pair(pattern.length, text.length)
 
     TODO("not implemented")
 }
