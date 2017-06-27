@@ -87,7 +87,7 @@ fun calculateOffset(str: String): Int =
 fun calcCell(matr: Array<Array<Cell>>, row: Int, col: Int, pattern: String, text:String): Cell {
     if (matr[row][col].calculated) return matr[row][col]
     val cell = calcCellDirect(matr, row, col, pattern, text)
-    matr[row][col] = Cell(cell.value, cell.direction, true)
+    matr[row][col] = cell.copy(calculated = true)
     return matr[row][col]
 }
 
